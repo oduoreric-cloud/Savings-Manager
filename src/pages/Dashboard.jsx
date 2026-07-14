@@ -4,6 +4,7 @@ import { getTransactions } from "../api/transactions";
 import AddTransaction from "../components/AddTransaction";
 import SummaryCards from "../components/SummaryCards";
 import Charts from "../components/Charts";
+import SavingGoals from "../components/SavingGoals";
 
 function Dashboard() {
   
@@ -102,6 +103,7 @@ function Dashboard() {
     localStorage.removeItem("budget");
   };
 
+  // Filter transactions
   const filteredTransactions = transactions.filter((t) => {
     const matchesSearch =
       t.note?.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -116,12 +118,26 @@ function Dashboard() {
     return matchesSearch && matchesType && matchesCategory;
   });
 
+  const visibleTransactions = transactions.filter((t) => {
+    const matchesSearch =
+      t.note?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      t.category?.toLowerCase().includes(searchTerm.toLowerCase());
+
+    const matchesType =
+      filterType === "all" ? true : t.type === filterType;
+      
+    const matchesCategory =
+      selectedCategory === "all" ? true : t.category === selectedCategory;
+
+    return matchesSearch && matchesType && matchesCategory;  
+  });
+
   // Filter transactions
-  const incomeTransactions = filteredTransactions.filter(
+  const incomeTransactions = visibleTransactions.filter(
     (t) => t.type === "income"
   );
 
-  const expenseTransactions = filteredTransactions.filter(
+  const expenseTransactions = visibleTransactions.filter(
     (t) => t.type === "expense"
   );
 
@@ -359,9 +375,23 @@ function Dashboard() {
 
       {/* Summary Cards */}
       <SummaryCards
-        totalIncome={totalIncome}
-        totalExpense={totalExpense}
-        balance={balance}
+        totalIncome={transactions
+          .filter((t) => t.type === "income")
+          .reduce((sum, t) => sum + t.amount, 0)
+        }
+        totalExpense={visibleTransactions
+          .filter((t) => t.type === "expense")
+          .reduce((sum, t) => sum + t.amount, 0)
+        }
+        balance={
+          transactions
+            .filter((t) => t.type === "income")
+            .reduce((sum, t) => sum + t.amount, 0) 
+          -
+          visibleTransactions
+            .filter((t) => t.type === "expense")
+            .reduce((sum, t) => sum + t.amount, 0)
+        }
       />
 
       <div className="mt-4 space-y-2">
@@ -540,6 +570,13 @@ function Dashboard() {
           </select>
         </div>
       </div>
+
+      {/* Saving Goals */}
+      <SavingGoals 
+        darkMode={darkMode} 
+        transactions={transactions} 
+        reload={loadTransactions} 
+      />
 
       {/* Charts */}
       <div 
