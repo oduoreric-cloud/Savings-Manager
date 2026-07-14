@@ -5,6 +5,8 @@ import AddTransaction from "../components/AddTransaction";
 import SummaryCards from "../components/SummaryCards";
 import Charts from "../components/Charts";
 import SavingGoals from "../components/SavingGoals";
+import RecurringTransactions from "../components/RecurringTransactions";
+import AddRecurring from "../components/AddRecurring";
 
 function Dashboard() {
   
@@ -12,6 +14,8 @@ function Dashboard() {
   const [searchTerm, setSearchTerm] = useState("");
   const [filterType, setFilterType] = useState("all");
   const [showAddModal, setShowAddModal] = useState(false);
+  const [showRecurringModal, setShowRecurringModal] = useState(false);
+  const [recurringReload, setRecurringReload] = useState(0);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [darkMode, setDarkMode] = useState(false);
   const [transactions, setTransactions] = useState([]);
@@ -215,7 +219,7 @@ function Dashboard() {
           : "bg-gray-100 text-gray-900"
       }`}
     >
-      <div className="pb-16">
+      <div className="pb-16 relative">
 
         {/* Header */}
         <div 
@@ -366,6 +370,48 @@ function Dashboard() {
               }`}
               style={{ width: `${Math.min(budgetUsage, 100)}%` }}
             ></div>
+          </div>
+        </div>
+      )}
+
+      {/* Recurring Transactions Section */}
+      <div className="mt-8 mb-8 space-y-4">
+
+      <RecurringTransactions
+        darkMode={darkMode}
+        reloadTrigger={recurringReload}
+      />
+      
+
+      <button
+        onClick={() => setShowRecurringModal(true)}
+        className="mt-4 bg-purple-600 hover:bg-purple-700 text-white px-5 py-3 rounded-xl shadow-lg"
+      >
+        ➕ Add Recurring Transaction
+      </button>
+      </div>
+
+      {/* Modal for Adding Recurring Transaction */}
+      {showRecurringModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className={`bg-white p-6 rounded-xl w-full max-w-md shadow-xl relative ${darkMode ? "bg-gray-700 text-white" : "bg-white text-gray-900"}`}>
+
+            <button
+              onClick={() => setShowRecurringModal(false)}
+              className="absolute top-2 right-2 text-gray-500 hover:text-gray-700 float-right"
+            >
+              ✖️
+            </button>
+
+            <h2 className="text-xl font-bold mb-4">
+              Add Recurring Transaction
+            </h2>
+
+            <AddRecurring
+              darkMode={darkMode}
+              reloadTrigger={recurringReload}
+            />
+
           </div>
         </div>
       )}
